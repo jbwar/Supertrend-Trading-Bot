@@ -13,11 +13,11 @@ from datetime import datetime
 import time
 
 
-## Establish exchange and API
-exchange = ccxt.coinbasepro({
-    'apiKey': config.coinbase_api_public,
-    'secret': config.coinbase_api_secret,
-    'password': config.coinbase_api_passphrase
+## Establish exchange and API.   Use any supported exchange and your API key
+exchange = ccxt.binance({
+    'apiKey': config.binance_api_public,
+    'secret': config.binance_api_secret,
+    'password': config.coinbase_api_passphrase  ## some exchanges require a api passphrase
 })
 
 
@@ -85,7 +85,7 @@ def check_buy_sell_signals(df):
     if not df['in_uptrend'][previous_row_index] and df['in_uptrend'][last_row_index]:
         if not in_position:
             print("changed to uptrend, buy")
-            # order = exchange.create_market_buy_order('ETH/USD', 0.01)
+            # order = exchange.create_market_buy_order('ETH/USDT', 0.01)   ## remove comments from these commands to execute orders
             # print(order)
             # in_position = True
         else:
@@ -93,7 +93,7 @@ def check_buy_sell_signals(df):
     if df['in_uptrend'][previous_row_index] and not df['in_uptrend'][last_row_index]:
         if in_position:
             print('changed to downtrend, sell')
-            # order = exchange.create_market_sell_order('ETH/USD', 0.01)
+            # order = exchange.create_market_sell_order('ETH/USDT', 0.01)   ## remove comments from these commands to execute orders
             # print(order)
             # in_position = False
         else:
@@ -102,7 +102,7 @@ def check_buy_sell_signals(df):
 
 def run_bot():
     print("Fetching new bars for {datetime.now().isoformat()}")
-    bars = exchange.fetch_ohlcv('ETH/USD', timeframe='6h', limit=100)
+    bars = exchange.fetch_ohlcv('ETH/USDT', timeframe='6h', limit=100)  ## You can customize timeframe and limit
     df = pd.DataFrame(bars[:-1], columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
     #print(df)
@@ -111,7 +111,7 @@ def run_bot():
 
     check_buy_sell_signals(supertrend_data)
 
-schedule.every(1).hour.do(run_bot)
+schedule.every(1).hour.do(run_bot)   ## You can customize the schedule
 
 
 while True:
